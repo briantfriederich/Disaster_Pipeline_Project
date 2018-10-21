@@ -26,11 +26,11 @@ def tokenize(text):
     return clean_tokens
 
 # load data
-engine = create_engine('sqlite:///../data/YourDatabaseName.db')
-df = pd.read_sql_table('YourTableName', engine)
+engine = create_engine('sqlite:///../data/DisasterResponse.db')
+df = pd.read_sql_table('data/DisasterResponse.db', engine)
 
 # load model
-model = joblib.load("../models/your_model_name.pkl")
+model = joblib.load("../models/classifier.pkl")
 
 
 # index webpage displays cool visuals and receives user input text for model
@@ -40,27 +40,55 @@ def index():
     
     # extract data needed for visuals
     # TODO: Below is an example - modify to extract data for your own visuals
-    genre_counts = df.groupby('genre').count()['message']
-    genre_names = list(genre_counts.index)
-    
+    related_counts = df.groupby('related').count()['message']
+    related_names = list(related_counts.index)
+    category_names = ['request', 'offer', 'aid_related', 'medical_help',
+           'medical_products', 'search_and_rescue', 'security', 'military',
+           'child_alone', 'water', 'food', 'shelter', 'clothing', 'money',
+           'missing_people', 'refugees', 'death', 'other_aid',
+           'infrastructure_related', 'transport', 'buildings', 'electricity',
+           'tools', 'hospitals', 'shops', 'aid_centers',
+           'other_infrastructure', 'weather_related', 'floods', 'storm',
+           'fire', 'earthquake', 'cold', 'other_weather', 'direct_report']
+    cat_arr = []
+    for x in category_names:
+        cat_arr.append(df[x].sum())
     # create visuals
     # TODO: Below is an example - modify to create your own visuals
     graphs = [
         {
             'data': [
                 Bar(
-                    x=genre_names,
-                    y=genre_counts
+                    x=related_names,
+                    y=related_counts
                 )
             ],
 
             'layout': {
-                'title': 'Distribution of Message Genres',
+                'title': 'Distribution of \'Related\' Category\nAmong Messages',
                 'yaxis': {
                     'title': "Count"
                 },
                 'xaxis': {
-                    'title': "Genre"
+                    'title': "\'Related\' Designation"
+                }
+            }
+        },
+        {
+            'data': [
+                Bar(
+                    x=category_names,
+                    y=cat_arr
+                )
+            ],
+
+            'layout': {
+                'title': 'Distribution of Message Categories',
+                'yaxis': {
+                    'title': "Count"
+                },
+                'xaxis': {
+                    'title': "Category"
                 }
             }
         }
